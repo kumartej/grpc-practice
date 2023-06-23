@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package calculator;
+
+option go_package = "github.com/kgedala/grpc-practice/calculator/proto";
+
+message addRequest {
+    uint32 integer1 = 1;
+    uint32 integer2 = 2;
+}
+
+message addResponse {
+    uint32 value = 1;
+}
+
+
+message primeFactorizationRequest {
+    uint32 integer = 1;
+}
+
+message primeNumber {
+    uint32 value = 1;
+}
+
+service calculatorService {
+    rpc add(addRequest) returns (addResponse);
+    rpc PrimeFactorization(primeFactorizationRequest) returns (stream primeNumber);
+}
