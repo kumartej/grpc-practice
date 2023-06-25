@@ -48,4 +48,6 @@ func main() {
 	}
 	log.Printf("\n")
 
+	doAverage(client)
+
 }
