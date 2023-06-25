@@ -25,6 +25,7 @@ type CalculatorServiceClient interface {
 	Add(ctx context.Context, in *AddRequest, opts ...grpc.CallOption) (*AddResponse, error)
 	PrimeFactorization(ctx context.Context, in *PrimeFactorizationRequest, opts ...grpc.CallOption) (CalculatorService_PrimeFactorizationClient, error)
 	Average(ctx context.Context, opts ...grpc.CallOption) (CalculatorService_AverageClient, error)
+	CurrentMax(ctx context.Context, opts ...grpc.CallOption) (CalculatorService_CurrentMaxClient, error)
 }
 
 type calculatorServiceClient struct {
@@ -110,6 +111,37 @@ func (x *calculatorServiceAverageClient) CloseAndRecv() (*DoubleResponse, error)
 	return m, nil
 }
 
+func (c *calculatorServiceClient) CurrentMax(ctx context.Context, opts ...grpc.CallOption) (CalculatorService_CurrentMaxClient, error) {
+	stream, err := c.cc.NewStream(ctx, &CalculatorService_ServiceDesc.Streams[2], "/calculator.calculatorService/CurrentMax", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &calculatorServiceCurrentMaxClient{stream}
+	return x, nil
+}
+
+type CalculatorService_CurrentMaxClient interface {
+	Send(*IntegerRequest) error
+	Recv() (*IntegerResponse, error)
+	grpc.ClientStream
+}
+
+type calculatorServiceCurrentMaxClient struct {
+	grpc.ClientStream
+}
+
+func (x *calculatorServiceCurrentMaxClient) Send(m *IntegerRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *calculatorServiceCurrentMaxClient) Recv() (*IntegerResponse, error) {
+	m := new(IntegerResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // CalculatorServiceServer is the server API for CalculatorService service.
 // All implementations must embed UnimplementedCalculatorServiceServer
 // for forward compatibility
@@ -117,6 +149,7 @@ type CalculatorServiceServer interface {
 	Add(context.Context, *AddRequest) (*AddResponse, error)
 	PrimeFactorization(*PrimeFactorizationRequest, CalculatorService_PrimeFactorizationServer) error
 	Average(CalculatorService_AverageServer) error
+	CurrentMax(CalculatorService_CurrentMaxServer) error
 	mustEmbedUnimplementedCalculatorServiceServer()
 }
 
@@ -132,6 +165,9 @@ func (UnimplementedCalculatorServiceServer) PrimeFactorization(*PrimeFactorizati
 }
 func (UnimplementedCalculatorServiceServer) Average(CalculatorService_AverageServer) error {
 	return status.Errorf(codes.Unimplemented, "method Average not implemented")
+}
+func (UnimplementedCalculatorServiceServer) CurrentMax(CalculatorService_CurrentMaxServer) error {
+	return status.Errorf(codes.Unimplemented, "method CurrentMax not implemented")
 }
 func (UnimplementedCalculatorServiceServer) mustEmbedUnimplementedCalculatorServiceServer() {}
 
@@ -211,6 +247,32 @@ func (x *calculatorServiceAverageServer) Recv() (*IntegerRequest, error) {
 	return m, nil
 }
 
+func _CalculatorService_CurrentMax_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(CalculatorServiceServer).CurrentMax(&calculatorServiceCurrentMaxServer{stream})
+}
+
+type CalculatorService_CurrentMaxServer interface {
+	Send(*IntegerResponse) error
+	Recv() (*IntegerRequest, error)
+	grpc.ServerStream
+}
+
+type calculatorServiceCurrentMaxServer struct {
+	grpc.ServerStream
+}
+
+func (x *calculatorServiceCurrentMaxServer) Send(m *IntegerResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *calculatorServiceCurrentMaxServer) Recv() (*IntegerRequest, error) {
+	m := new(IntegerRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // CalculatorService_ServiceDesc is the grpc.ServiceDesc for CalculatorService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -232,6 +294,12 @@ var CalculatorService_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "Average",
 			Handler:       _CalculatorService_Average_Handler,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "CurrentMax",
+			Handler:       _CalculatorService_CurrentMax_Handler,
+			ServerStreams: true,
 			ClientStreams: true,
 		},
 	},

@@ -30,8 +30,13 @@ message DoubleResponse {
     float value = 1;
 }
 
+message IntegerResponse {
+    uint32 value = 1;
+}
+
 service calculatorService {
     rpc add(addRequest) returns (addResponse);
     rpc PrimeFactorization(primeFactorizationRequest) returns (stream primeNumber);
     rpc Average(stream IntegerRequest) returns (DoubleResponse);
+    rpc CurrentMax(stream IntegerRequest) returns (stream IntegerResponse);
 }

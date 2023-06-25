@@ -64,3 +64,33 @@ func (s *Server) Average(stream pb.CalculatorService_AverageServer) error {
 
 	return nil
 }
+
+func (s *Server) CurrentMax(stream pb.CalculatorService_CurrentMaxServer) error {
+	log.Println("CurrentMax was invoked")
+
+	var max uint32 = 0
+
+	for {
+		req, err := stream.Recv()
+
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			log.Fatalf("Error reading from client: %v\n", err)
+		}
+
+		if req.Integer > max {
+			max = req.Integer
+			err = stream.Send(&pb.IntegerResponse{
+				Value: req.Integer,
+			})
+
+			if err != nil {
+				log.Fatalf("Error while sending to client: %v", err)
+			}
+		}
+
+	}
+}
