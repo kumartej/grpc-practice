@@ -50,5 +50,5 @@ func main() {
 
 	doAverage(client)
 	doCurrentMax(client)
-
+	doSqrt(client, -100)
 }
